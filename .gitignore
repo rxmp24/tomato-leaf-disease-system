@@ -1,0 +1,31 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Node.js
+node_modules/
+.next/
+dist/
+
+# Dataset (too large for GitHub)
+Tomato_Leaf_Dataset/
+
+# ONNX Model (too large for GitHub, will be hosted separately)
+*.onnx
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated images (documentation assets, not code)
+*.png
+
+# Misc
+*.log
+it is all about the mofe,you know s.txt
