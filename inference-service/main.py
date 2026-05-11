@@ -5,6 +5,7 @@ import onnxruntime as ort
 import numpy as np
 from PIL import Image
 import io
+import os
 
 app = FastAPI(title="Tomato Leaf ML Inference Service")
 
