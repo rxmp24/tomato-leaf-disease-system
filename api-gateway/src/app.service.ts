@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
-  private readonly ML_SERVICE_URL = 'http://127.0.0.1:8000/predict';
+  private readonly ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'https://tomato-leaf-disease-system.onrender.com/predict';
 
   async getPredictionFromMLService(file: any): Promise<any> {
     this.logger.log(`Forwarding image to ML Service at ${this.ML_SERVICE_URL}`);
