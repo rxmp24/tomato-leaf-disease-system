@@ -107,10 +107,10 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 font-sans flex flex-col items-center py-16 px-4">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 font-sans flex flex-col items-center py-8 md:py-16 px-4 sm:px-6">
       <div className="max-w-2xl w-full">
         {/* Header Section */}
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-10 md:mb-14 animate-fade-in">
           {/* Leaf icon */}
           <div className="flex justify-center mb-5">
             <div className="p-3 rounded-2xl bg-green-900/30 border border-green-800/30">
@@ -121,16 +121,16 @@ export default function Home() {
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-4 text-slate-50">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-50">
             Tomato Leaf Diagnostics System
           </h1>
-          <p className="text-slate-400 text-base max-w-md mx-auto leading-relaxed">
+          <p className="text-slate-400 text-sm md:text-base max-w-md mx-auto leading-relaxed">
             Upload or snap a photo of a tomato leaf to instantly detect diseases using advanced AI models.
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 shadow-xl rounded-2xl p-7 transition-all duration-500">
+        <div className="bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 shadow-xl rounded-2xl p-5 md:p-7 transition-all duration-500">
 
           {/* Camera View */}
           {isCameraActive ? (
@@ -161,7 +161,7 @@ export default function Home() {
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={onDrop}
-                className="w-full p-10 border border-dashed border-slate-600/60 rounded-xl bg-slate-800/30 hover:bg-slate-700/30 hover:border-slate-500/60 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer group"
+                className="w-full p-6 md:p-10 border border-dashed border-slate-600/60 rounded-xl bg-slate-800/30 hover:bg-slate-700/30 hover:border-slate-500/60 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer group"
                 onClick={() => document.getElementById("file-upload")?.click()}
               >
                 <div className="p-3.5 bg-slate-700/50 rounded-xl mb-4 group-hover:scale-105 group-hover:bg-slate-700/70 transition-all duration-300">
@@ -240,7 +240,7 @@ export default function Home() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-xs text-slate-500 mb-1 uppercase tracking-wider font-medium">Detected Condition</p>
-                      <p className="text-2xl font-bold text-slate-50 tracking-tight">{result.disease_name}</p>
+                      <p className="text-xl md:text-2xl font-bold text-slate-50 tracking-tight">{result.disease_name}</p>
                     </div>
 
                     <div>
