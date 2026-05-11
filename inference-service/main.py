@@ -19,7 +19,7 @@ app.add_middleware(
 
 # Load the ONNX model
 # We use the parent directory since the model is currently in the root workspace
-MODEL_PATH = os.environ.get("MODEL_PATH", "../tomato_cnn_model.onnx")
+MODEL_PATH = os.environ.get("MODEL_PATH", "tomato_cnn_model.onnx")
 try:
     session = ort.InferenceSession(MODEL_PATH)
     input_name = session.get_inputs()[0].name
