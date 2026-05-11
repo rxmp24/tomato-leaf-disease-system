@@ -12,8 +12,6 @@ dist/
 # Dataset (too large for GitHub)
 Tomato_Leaf_Dataset/
 
-# ONNX Model (too large for GitHub, will be hosted separately)
-*.onnx
 
 # IDE
 .vscode/
