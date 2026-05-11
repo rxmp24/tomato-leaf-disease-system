@@ -83,7 +83,7 @@ export default function Home() {
 
     try {
       // Send to NestJS API Gateway
-      const response = await fetch("http://localhost:3001/diagnose", {
+      const response = await fetch("https://api-gateway-6sem.onrender.com/diagnose", {
         method: "POST",
         body: formData,
       });
