@@ -11,6 +11,7 @@ export default function Home() {
 
   // Camera State
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -36,21 +37,33 @@ export default function Home() {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      setStream(mediaStream);
       setIsCameraActive(true);
+      
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        videoRef.current.srcObject = mediaStream;
+        
+        // Wait a tiny bit for the browser to register the srcObject
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.play().catch(e => {
+              alert(`Video play failed: ${e.name} - ${e.message}. Tracks: ${mediaStream.getVideoTracks().length}`);
+            });
+          }
+        }, 100);
       }
-    } catch (err) {
+    } catch (err: any) {
+      alert(`Camera start error: ${err.name} - ${err.message}`);
       setError("Unable to access camera. Please check permissions.");
     }
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
+    if (stream) {
       stream.getTracks().forEach((track) => track.stop());
     }
+    setStream(null);
     setIsCameraActive(false);
   };
 
@@ -132,30 +145,30 @@ export default function Home() {
         {/* Main Card */}
         <div className="bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 shadow-xl rounded-2xl p-5 md:p-7 transition-all duration-500">
 
-          {/* Camera View */}
-          {isCameraActive ? (
-            <div className="flex flex-col items-center space-y-6">
-              <div className="relative rounded-xl overflow-hidden border border-slate-600/50 shadow-lg">
-                <video ref={videoRef} autoPlay playsInline className="w-full max-w-md h-auto" />
-                <canvas ref={canvasRef} className="hidden" />
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={stopCamera}
-                  className="px-5 py-2.5 rounded-lg bg-slate-700/60 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-600/50 text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={snapImage}
-                  className="px-6 py-2.5 rounded-lg bg-green-700/80 text-green-50 font-medium hover:bg-green-700 transition-all flex items-center space-x-2 text-sm border border-green-600/40"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  <span>Snap Photo</span>
-                </button>
-              </div>
+          {/* Camera View (Always mounted to bypass ref timing bugs on mobile) */}
+          <div className={`flex flex-col items-center space-y-6 ${!isCameraActive ? 'hidden' : ''}`}>
+            <div className="relative rounded-xl overflow-hidden border border-slate-600/50 shadow-lg">
+              <video ref={videoRef} autoPlay playsInline={true} muted={true} className="w-full max-w-md h-auto min-h-[300px] bg-slate-900" />
+              <canvas ref={canvasRef} className="hidden" />
             </div>
-          ) : !preview ? (
+            <div className="flex space-x-3">
+              <button
+                onClick={stopCamera}
+                className="px-5 py-2.5 rounded-lg bg-slate-700/60 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-600/50 text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={snapImage}
+                className="px-6 py-2.5 rounded-lg bg-green-700/80 text-green-50 font-medium hover:bg-green-700 transition-all flex items-center space-x-2 text-sm border border-green-600/40"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span>Snap Photo</span>
+              </button>
+            </div>
+          </div>
+
+          {!isCameraActive && !preview ? (
             /* Upload/Snap Zone */
             <div className="flex flex-col items-center">
               <div
