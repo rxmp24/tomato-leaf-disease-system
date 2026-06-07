@@ -40,10 +40,10 @@ export default function Home() {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
       setStream(mediaStream);
       setIsCameraActive(true);
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        
+
         // Wait a tiny bit for the browser to register the srcObject
         setTimeout(() => {
           if (videoRef.current) {
@@ -168,9 +168,10 @@ export default function Home() {
             </div>
           </div>
 
-          {!isCameraActive && !preview ? (
-            /* Upload/Snap Zone */
-            <div className="flex flex-col items-center">
+          {!isCameraActive && (
+            !preview ? (
+              /* Upload/Snap Zone */
+              <div className="flex flex-col items-center">
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={onDrop}
@@ -199,11 +200,11 @@ export default function Home() {
                 <span>Use Device Camera</span>
               </button>
             </div>
-          ) : (
-            /* Preview & Results Zone */
-            <div className="flex flex-col items-center animate-fade-in-up">
-              <div className="relative rounded-xl overflow-hidden border border-slate-700/50 shadow-lg mb-6 group">
-                <img src={preview} alt="Leaf Preview" className="w-full max-w-md h-auto object-cover" />
+            ) : (
+              /* Preview & Results Zone */
+              <div className="flex flex-col items-center animate-fade-in-up">
+                <div className="relative rounded-xl overflow-hidden border border-slate-700/50 shadow-lg mb-6 group">
+                  <img src={preview || undefined} alt="Leaf Preview" className="w-full max-w-md h-auto object-cover" />
                 {!result && !loading && (
                   <button
                     onClick={reset}
@@ -278,7 +279,8 @@ export default function Home() {
                   </button>
                 </div>
               )}
-            </div>
+              </div>
+            )
           )}
         </div>
 
