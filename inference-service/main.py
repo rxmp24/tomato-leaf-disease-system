@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 import uvicorn
 import onnxruntime as ort
 import numpy as np
@@ -56,39 +57,53 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
         raise ValueError(f"Invalid image format: {e}")
 
 @app.post("/predict")
-async def predict_disease(file: UploadFile = File(...)):
+async def predict_disease(images: List[UploadFile] = File(...)):
     if session is None:
         raise HTTPException(status_code=500, detail="ONNX model is not loaded.")
         
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+    for file in images:
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="All uploaded files must be images.")
 
     try:
-        # Read and preprocess the image
-        contents = await file.read()
-        input_tensor = preprocess_image(contents)
+        # Preprocess all images
+        input_tensors = []
+        filenames = []
+        for file in images:
+            contents = await file.read()
+            tensor = preprocess_image(contents) # Shape: (1, 224, 224, 3)
+            input_tensors.append(tensor[0]) # Remove the first dim so we can stack them
+            filenames.append(file.filename)
+            
+        # Stack all tensors into a single batch: (N, 224, 224, 3)
+        batch_tensor = np.stack(input_tensors).astype(np.float32)
         
         # Run ONNX inference
-        predictions = session.run(None, {input_name: input_tensor})[0]
+        batch_predictions = session.run(None, {input_name: batch_tensor})[0]
         
-        # Extract results
-        predicted_class_index = int(np.argmax(predictions[0]))
-        confidence_score = float(np.max(predictions[0])) * 100
-        predicted_disease = CLASS_NAMES[predicted_class_index]
-        
-        # Format the disease name for the frontend
-        formatted_disease = predicted_disease.replace('_', ' ').replace('Tomato ', '').strip()
-        if "healthy" in formatted_disease.lower():
-            status = "Healthy"
-        else:
-            status = "Diseased"
+        results = []
+        for i, predictions in enumerate(batch_predictions):
+            # Extract results for this specific image in the batch
+            predicted_class_index = int(np.argmax(predictions))
+            confidence_score = float(np.max(predictions)) * 100
+            predicted_disease = CLASS_NAMES[predicted_class_index]
+            
+            # Format the disease name for the frontend
+            formatted_disease = predicted_disease.replace('_', ' ').replace('Tomato ', '').strip()
+            if "healthy" in formatted_disease.lower():
+                status = "Healthy"
+            else:
+                status = "Diseased"
 
-        return {
-            "disease_name": formatted_disease,
-            "raw_class": predicted_disease,
-            "confidence": round(confidence_score, 2),
-            "status": status
-        }
+            results.append({
+                "filename": filenames[i],
+                "disease_name": formatted_disease,
+                "raw_class": predicted_disease,
+                "confidence": round(confidence_score, 2),
+                "status": status
+            })
+
+        return results
         
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))

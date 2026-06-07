@@ -1,21 +1,21 @@
-import { Controller, Post, UseInterceptors, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFiles, HttpException, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('diagnose')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
-  async diagnoseLeaf(@UploadedFile() file: any) {
-    if (!file) {
-      throw new HttpException('No image file provided', HttpStatus.BAD_REQUEST);
+  @UseInterceptors(FilesInterceptor('images'))
+  async diagnoseLeaf(@UploadedFiles() files: any[]) {
+    if (!files || files.length === 0) {
+      throw new HttpException('No image files provided', HttpStatus.BAD_REQUEST);
     }
     
-    // Forward the file to the Python ML Inference Service
+    // Forward the files to the Python ML Inference Service
     try {
-      const result = await this.appService.getPredictionFromMLService(file);
+      const result = await this.appService.getPredictionFromMLService(files);
       return result;
     } catch (error) {
       throw new HttpException(
